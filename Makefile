@@ -121,5 +121,21 @@ test-ios9-ipad-2_DESTINATION := 'platform=iOS Simulator,OS=9.3,name=iPad 2'
 test-ios9-ipad-2:
 	$(XCODEBUILD_TEST_WITHOUT_BUILDING)
 
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+clean:
+	rm -rf build
 
+xcframework: clean
+	xcodebuild -project "STULabel.xcodeproj" -sdk iphonesimulator VALID_ARCHS=x86_64 -arch x86_64 -configuration Release -target STULabel BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild -project "STULabel.xcodeproj" -sdk iphoneos -arch arm64 -configuration Release -target STULabel BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild -create-xcframework \
+	-framework "build/Release-iphoneos/STULabel.framework" \
+	-framework "build/Release-iphonesimulator/STULabel.framework" \
+	-output "build/STULabel.xcframework"
+	xcodebuild -project "STULabel.xcodeproj" -sdk iphonesimulator VALID_ARCHS=x86_64 -arch x86_64 -configuration Release -target STULabelSwift BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild -project "STULabel.xcodeproj" -sdk iphoneos -arch arm64 -configuration Release -target STULabelSwift BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+	xcodebuild -create-xcframework \
+	-framework "build/Release-iphoneos/STULabelSwift.framework" \
+	-framework "build/Release-iphonesimulator/STULabelSwift.framework" \
+	-output "build/STULabelSwift.xcframework"
